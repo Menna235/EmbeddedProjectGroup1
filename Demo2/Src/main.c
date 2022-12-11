@@ -79,6 +79,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE BEGIN 0 */
 int raw;
 uint8_t uartBuff[100];
+int32_t CH1_DC = 0; 
 /* USER CODE END 0 */
 
 /**
@@ -116,10 +117,16 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 	TIM2->CCR1= 0;
 	TIM2->CCR2= 0;
 	TIM2->CCR4= 0;	
 	TIM1->CCR3= 0;
+
 //HAL_ADCEx_Calibration_Start(&hadc1, ADC_CHANNEL_2);
   /* USER CODE END 2 */
 
@@ -137,116 +144,136 @@ int main(void)
 //		HAL_Delay(100);
 		
 		
-				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-		
-			 HAL_ADC_Start(&hadc1);
+
+	  HAL_ADC_Start(&hadc1);
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  raw = HAL_ADC_GetValue(&hadc1);
 	  sprintf((char*) uartBuff,"%d\r\n", raw);
 	  HAL_UART_Transmit(&huart2, uartBuff, sizeof(uartBuff), HAL_MAX_DELAY);
 		
-		
-		
-	//blue	
-			int y= HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_4);
-	if(!y)
-	{	
-		 raw = HAL_ADC_GetValue(&hadc1);
-		 if ((raw/100) <= 3){
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 0);
-	  }
-	  else{
-			
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 1);
-	  }
-		//HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,1);
-		//HAL_UART_Transmit(&huart2, (uint8_t *) "Detect", sizeof("Detect"), HAL_MAX_DELAY);
-			HAL_Delay(200);
-	}
-		else
-	{	
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,0);
-		HAL_Delay(200);
-	}
-	
-	
-	
-	//SECOND SENSOR (Red)
+		//blue	
+		int y= HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_4);
+		//SECOND SENSOR (Red)
 		int y2= HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_5);
-	if(!y2)
-	{	
-		 
-		 raw = HAL_ADC_GetValue(&hadc1);
-		 if ((raw/100) <= 3){
-			TIM2->CCR1= 0;
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
-			 
-	  }
-	  else{
-			TIM2->CCR1= 65535;
-//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 1);
-	  }
-		
-		//HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,1);
-		//HAL_UART_Transmit(&huart2, (uint8_t *) "Detect", sizeof("Detect"), HAL_MAX_DELAY);
-			HAL_Delay(200);
-	}
-		else
-	{	
-		TIM2->CCR1= 0;
-//		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,0);
-		HAL_Delay(200);
-	}
-	
-	
-	//THIRD SENSOR
+		//THIRD SENSOR  (Yellow)
 		int y3= HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_7);
-	if(!y3)
-	{	
-		 raw = HAL_ADC_GetValue(&hadc1);
-		 if ((raw/100) <= 3){
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, 0);
-	  }
-	  else{
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, 1);
-	  }
-		//HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,1);
-		//HAL_UART_Transmit(&huart2, (uint8_t *) "Detect", sizeof("Detect"), HAL_MAX_DELAY);
-			HAL_Delay(200);
-	}
-		else
-	{	
-		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,0);
-		HAL_Delay(200);
-	}
-	
-	
-	//fourth sensor
-	
+		//fourth sensor (white)
 		int y4= HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_9);
-	if(!y4)
-	{	
-		 raw = HAL_ADC_GetValue(&hadc1);
-		 if ((raw/100) <= 3){
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
-	  }
-	  else{
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
-	  }
-		//HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,1);
-		//HAL_UART_Transmit(&huart2, (uint8_t *) "Detect", sizeof("Detect"), HAL_MAX_DELAY);
-			HAL_Delay(200);
-	}
-		else
-	{	
-		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_11,0);
-		HAL_Delay(200);
-	}
-	
+		
+			
+		if((!y)&&(!y2)&&(!y3)&&(!y4))
+		{
+				
 
+			if ((raw/100) <= 3)
+			 {
+				 	TIM2->CCR1= 0;
+					TIM2->CCR2= 0;
+					TIM2->CCR4= 0;	
+					TIM1->CCR3= 0;				 
+			 }
+			 	else
+				{
+			
+
+					TIM2->CCR2= 20000;	
+					TIM2->CCR1= 20000;
+					TIM2->CCR4= 20000;	
+					TIM1->CCR3= 2000;
+			 }
+		}
+		else
+		{
+		
+			//blue	
+			if(!y)
+			{	
+					
+				 raw = HAL_ADC_GetValue(&hadc1);
+				 if ((raw/100) <= 3)
+					 {
+					 TIM2->CCR2= 0;
+					 }
+				else
+					{
+					TIM2->CCR2= 65535;
+					}
+				HAL_Delay(200);
+			}
+			else
+			{	
+				TIM2->CCR2= 0;
+				HAL_Delay(200);
+			}
+			
+			
+			//SECOND SENSOR (Red)
+			if(!y2)
+			{	
+				 
+				 raw = HAL_ADC_GetValue(&hadc1);
+				 if ((raw/100) <= 3)
+					{
+						TIM2->CCR1= 0;
+					}
+				else
+					{
+					TIM2->CCR1= 65535;
+					}
+					HAL_Delay(200);
+			}
+			else
+			{	
+				TIM2->CCR1= 0;
+				HAL_Delay(200);
+			}
+			
+			
+			//THIRD SENSOR  (Yellow)
+			if(!y3)
+			{	
+				 raw = HAL_ADC_GetValue(&hadc1);
+				 if ((raw/100) <= 3)
+					 {
+					 TIM1->CCR3= 0;
+					}
+				else
+					{
+						TIM1->CCR3= 65535;
+					}
+					HAL_Delay(200);
+			}
+			else
+			{	
+				TIM1->CCR3= 0;
+				HAL_Delay(200);
+			}
+			
+			
+			//fourth sensor (white)
+			
+			if(!y4)
+			{	
+				 raw = HAL_ADC_GetValue(&hadc1);
+				 if ((raw/100) <= 3)
+					{
+					 TIM2->CCR4= 0;
+				 }
+				else
+				{
+					TIM2->CCR4= 65535;
+				}
+					
+				HAL_Delay(200);
+			}
+				else
+			{	
+				TIM2->CCR4= 0;
+				HAL_Delay(200);
+			}
+			
+			
+		}
   
   }
   /* USER CODE END 3 */
@@ -280,7 +307,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
   RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 16;
+  RCC_OscInitStruct.PLL.PLLN = 36;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -298,7 +325,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -394,12 +421,12 @@ static void MX_TIM1_Init(void)
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 31;
+  htim1.Init.Prescaler = 7;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -465,11 +492,11 @@ static void MX_TIM2_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 31;
+  htim2.Init.Prescaler = 7;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 65535;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
