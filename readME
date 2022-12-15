@@ -1,0 +1,8 @@
+In this repo, you will find two directories: demo 1 and demo 2.
+
+How to build: 
+In order to build our project, you need to download the source code under the demo 2 directory and load it on the microcontroller. For the hardware part, you need to enable a timer with different channels and each channel is connected to a LED. Each sensor will be coresponding to a LED that turns on after reading a signal. 
+You can see the circuit in the wiki page. 
+
+How to use:
+Use this project in intercity roads to automate the streelight system.
